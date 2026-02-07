@@ -4,9 +4,20 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Perfil</title>
 </head>
 <body>
-
+	<jsp:include page="../includes/header.jsp" />
+	<jsp:include page="../includes/nav-bar.jsp" />
+	
+	<main>
+		
+		<div class="profile-container">
+			
+		</div>
+		
+	</main>
+	
+	<jsp:include page="../includes/footer.jsp" />
 </body>
 </html>
