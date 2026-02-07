@@ -4,14 +4,19 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Página Inicial</title>
+<link >
 </head>
 <body>
 	
 	<jsp:include page="includes/header.jsp" />
 	<jsp:include page="includes/nav-bar.jsp" />
 	
-	<h1>Hello World!</h1>
+	<main>
+		
+		<h2>olaa</h2>
+		
+	</main>
 
 	<jsp:include page="includes/footer.jsp" />
 	
