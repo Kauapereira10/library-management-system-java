@@ -1,7 +1,7 @@
 package model;
 
 public class User {
-	private Long id;
+	private int id;
 	private String fullName;
 	private String nickName;
 	private String email;
@@ -23,7 +23,7 @@ public class User {
 		this.passwordHash = passwordHash;
 	}
 
-	public User(Long id, String fullName, String nickName, String email, String passwordHash) {
+	public User(int id, String fullName, String nickName, String email, String passwordHash) {
 		super();
 		this.id = id;
 		this.fullName = fullName;
@@ -32,11 +32,11 @@ public class User {
 		this.passwordHash = passwordHash;
 	}
 
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
