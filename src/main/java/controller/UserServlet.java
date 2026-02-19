@@ -17,7 +17,7 @@ import dao.UserDAO;
 import model.User;
 import util.PasswordUtil;
 
-@WebServlet(urlPatterns =  {"/users/register", "/users/login", "/users/profile"})
+@WebServlet(urlPatterns = {"/users/register", "/users/login", "/users/profile"})
 public class UserServlet extends HttpServlet{	
 
 	private UserDAO userDao;
@@ -29,17 +29,30 @@ public class UserServlet extends HttpServlet{
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		System.out.println("Rota acessada: " + request.getServletPath());
+		 
 		String action = request.getServletPath();
-		
+
 		switch (action) {
-		case "/users/register": {
-			request.getRequestDispatcher("/views/auth/register.jsp").forward(request, response);
+		case "/users/register": 
+			request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
 			break;
-		}
+		case "/users/login": 
+			request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
+			break;
+		case "/users/profile": 
+			HttpSession session = request.getSession();
+			if(session != null && session.getAttribute("user") != null) {
+				request.getRequestDispatcher("/WEB-INF/views/auth/profile.jsp").forward(request, response);
+			} else {
+				request.setAttribute("error", "Você precisa estar logado!");
+				request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
+			}
+			
+			break;
 		default:
-			throw new IllegalArgumentException("Unexpected value: ");
+			throw new IllegalArgumentException("Unexpected value: " + action);
 		}
-		
 		
 	}
 	
@@ -51,28 +64,22 @@ public class UserServlet extends HttpServlet{
 		
 		switch (action) {
 		case "/users/register": 
-			//success = registerUser(request, response);
-			break;
+			success = registerUser(request, response);
+			return;
 		case "/users/login":
-			//success = loginUser(request, response);
-			break;
+			success = loginUser(request, response);
+			return;
 		case "/users/profile":
 			//success = profileUser(request, response);
-			break;
+			return;
 		default:
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 		
-		if(success) {
-			response.sendRedirect(request.getContextPath() + "/users/profile");
-		}else {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Erro ao processar a operação!");
-		}
-		
 	}
 	
-	protected static void registerUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected boolean registerUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			User newUser = new User();
 			String fullName = request.getParameter("name");
@@ -92,9 +99,10 @@ public class UserServlet extends HttpServlet{
 			request.setAttribute("erro", e.getMessage());
 			request.getRequestDispatcher("/views/auth/resgister.jsp").forward(request, response);
 		}
+		return false;
 	}
 	
-	private void loginUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+	private boolean loginUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		
 			String email = request.getParameter("email");
 			String passwordHash = request.getParameter("passwordHash");
@@ -111,6 +119,14 @@ public class UserServlet extends HttpServlet{
 			}
 			
 		
+	}
+	
+	private boolean profileUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, Exception{
+		
+		
+		
+		return false;	
+			
 	}
 	
 }
