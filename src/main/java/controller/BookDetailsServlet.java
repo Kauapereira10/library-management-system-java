@@ -31,7 +31,7 @@ public class BookDetailsServlet extends HttpServlet {
 		
 		switch (action) {
 		case "/books/details": 
-			//detailsBook(request, response);
+			detailsBook(request, response);
 			break;
 		default:
 			request.getRequestDispatcher("/WEB-INF/views/index.jsp").forward(request, response);
@@ -39,10 +39,21 @@ public class BookDetailsServlet extends HttpServlet {
 	}
 	
 	private void detailsBook (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		List<Book> book = bookDao.findById();
-		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/books/book-details.jsp");
-		dispatcher.forward(request, response);
+		try {
+			int id = Integer.parseInt(request.getParameter("id"));
+			
+			Book book = bookDao.findById(id);
+			
+			request.setAttribute("books", book);
+			
+			RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/books/book-details.jsp");
+			
+			dispatcher.forward(request, response);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.sendRedirect(request.getContextPath() + "/home");
+		}
 	}
 
 }
