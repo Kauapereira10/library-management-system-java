@@ -1,0 +1,13 @@
+CREATE TABLE library_db.books (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    title VARCHAR(150) NOT NULL,
+    author VARCHAR(150) NOT NULL,
+    isbn VARCHAR(150) NOT NULL, 
+    available BOOLEAN DEFAULT TRUE, 
+    active BOOLEAN,
+    CONSTRAINT pk_books PRIMARY KEY (id),
+    CONSTRAINT uq_books_isbn UNIQUE (isbn)
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_0900_ai_ci;
