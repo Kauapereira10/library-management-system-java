@@ -13,7 +13,7 @@
 	
 	<h1>Fazer o Login</h1>
 	
-	<form method="post" action="${pageContext.request.contextPath}/user/login">
+	<form method="post" action="${pageContext.request.contextPath}/users/login">
 		<input type="email" name="email" placeholder="Email" required>
 		<input type="password" name="password" placeholder="Senha" required>
 		<button type="submit">Entrar</button>
