@@ -1,7 +1,7 @@
 package model;
 
 public class Book {
-	private Long id;
+	private int id;
 	private String title;
 	private String author;
 	private String isbn;
@@ -21,7 +21,7 @@ public class Book {
 		this.active = active;
 	}
 
-	public Book(Long id, String title, String author, String isbn, boolean available, boolean active) {
+	public Book(int id, String title, String author, String isbn, boolean available, boolean active) {
 		this.id = id;
 		this.title = title;
 		this.author = author;
@@ -30,11 +30,11 @@ public class Book {
 		this.active = active;
 	}
 
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
