@@ -70,8 +70,8 @@ public class UserServlet extends HttpServlet{
 			success = loginUser(request, response);
 			return;
 		case "/users/profile":
-			//success = profileUser(request, response);
-			return;
+			showProfile(request, response);
+			break;
 		default:
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
@@ -82,8 +82,8 @@ public class UserServlet extends HttpServlet{
 	protected boolean registerUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			User newUser = new User();
-			String fullName = request.getParameter("name");
-			String nickName = request.getParameter("nick name");
+			String fullName = request.getParameter("full_name");
+			String nickName = request.getParameter("nick_name");
 			String email = request.getParameter("email");
 			String password = request.getParameter("password");
 			
@@ -91,13 +91,13 @@ public class UserServlet extends HttpServlet{
 			
 			newUser = new User(fullName, nickName, email, hash);
 			
-			//userDao.save();
+			userDao.register(newUser);
 			
-			response.sendRedirect(request.getContextPath() + "/views/auth/login.jsp");
+			response.sendRedirect(request.getContextPath() + "/WEB-INF/views/auth/login.jsp");
 			
 		} catch (Exception e) {
 			request.setAttribute("erro", e.getMessage());
-			request.getRequestDispatcher("/views/auth/resgister.jsp").forward(request, response);
+			request.getRequestDispatcher("/WEB-INF/views/auth/resgister.jsp").forward(request, response);
 		}
 		return false;
 	}
@@ -105,28 +105,42 @@ public class UserServlet extends HttpServlet{
 	private boolean loginUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		
 			String email = request.getParameter("email");
-			String passwordHash = request.getParameter("passwordHash");
+			String passwordHash = request.getParameter("password");
 			
 			User user = userDao.login(email, passwordHash);
 			
 			if(user != null) {
 				HttpSession session = request.getSession();
 				session.setAttribute("user", user);
-				response.sendRedirect(request.getContextPath() +  "/views/books/list.jsp");
+				response.sendRedirect(request.getContextPath() +  "/WEB-/views/books/list.jsp");
 			}else {
 				request.setAttribute("erro", "");
-				request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
+				request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
 			}
 			
+			
+			return false;
 		
 	}
 	
-	private boolean profileUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, Exception{
-		
-		
-		
-		return false;	
-			
+	private void showProfile(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+
+	    HttpSession session = request.getSession(false);
+
+	    if (session == null || session.getAttribute("user") == null) {
+	        response.sendRedirect(request.getContextPath() + "/users/login");
+	        return;
+	    }
+
+	    User sessionUser = (User) session.getAttribute("user");
+
+	    User userFromDb = userDao.findById(sessionUser.getId());
+	    
+	    request.setAttribute("user", userFromDb);
+
+	    request.getRequestDispatcher("/WEB-INF/views/auth/profile.jsp").forward(request, response);
 	}
+
 	
 }
