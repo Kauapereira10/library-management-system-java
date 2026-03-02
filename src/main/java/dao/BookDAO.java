@@ -59,4 +59,58 @@ public class BookDAO {
 		return book;
 	}
 	
+	public boolean create(Book book) {
+		String sql = "INSERT INTO books (title, author, isbn, available, active) VALUES (?,?,?,?,?);";
+		
+		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)){
+			stmt.setString(1, book.getTitle());
+			stmt.setString(2, book.getAuthor());
+			stmt.setString(3, book.getIsbn());
+			stmt.setBoolean(4, book.isAvailable());
+			stmt.setBoolean(5, book.isActive());
+			
+			int linhasAfetadas = stmt.executeUpdate();
+			
+			if(linhasAfetadas > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean update(Book book) {
+		String sql = "UPDATE books SET title =?, author =?, isbn =?, available =?, active =? WHERE id =?;";
+		
+		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)){
+			
+			stmt.setString(1, book.getTitle());
+			stmt.setString(2, book.getAuthor());
+			stmt.setString(3, book.getIsbn());
+			stmt.setBoolean(4, book.isAvailable());
+			stmt.setBoolean(5, book.isActive());
+			stmt.setInt(6, book.getId());
+			
+			return stmt.executeUpdate() > 0;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	public void delete(Book book) {
+		String sql = "DELETE FROM books WHERE id =?;";
+		
+		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)){
+			stmt.setInt(1, book.getId());
+			stmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
