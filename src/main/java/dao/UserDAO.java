@@ -43,7 +43,7 @@ public class UserDAO {
 			
 			if(rs.next()) {
 				
-				String storedHash = rs.getString("password");
+				String storedHash = rs.getString("password_hash");
 			
 				if(PasswordUtil.verify(password, storedHash)) {
 					
@@ -53,6 +53,7 @@ public class UserDAO {
 					user.setFullName(rs.getString("full_name"));
 					user.setNickName(rs.getString("nick_name"));
 					user.setEmail(rs.getString("email"));
+					user.setRole(rs.getString("role"));
 					
 					return user;
 				}
