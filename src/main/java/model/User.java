@@ -6,6 +6,8 @@ public class User {
 	private String nickName;
 	private String email;
 	private String passwordHash;
+	private String role;
+	
 	
 	public User() {
 	
@@ -45,8 +47,8 @@ public class User {
 	}
 
 	public void setFullName(String fullName) {
-		if(this.fullName == null || this.fullName.isEmpty()) {
-			throw new IllegalArgumentException("O campo nome completo é obrigatório.");
+		if(fullName == null || fullName.isEmpty()) {
+		    throw new IllegalArgumentException("O campo nome completo é obrigatório.");
 		}
 		this.fullName = fullName;
 	}
@@ -64,8 +66,8 @@ public class User {
 	}
 
 	public void setEmail(String email) {
-		if(this.email == null || this.email.isEmpty()) {
-			throw new IllegalArgumentException("O campo email é obrigatório.");
+		if(email == null || email.isEmpty()) {
+		    throw new IllegalArgumentException("O campo email é obrigatório.");
 		}
 		this.email = email;
 	}
@@ -75,10 +77,18 @@ public class User {
 	}
 
 	public void setPasswordHash(String passwordHash) {
-		if(this.passwordHash == null || this.passwordHash.isEmpty()) {
-			throw new IllegalArgumentException("O campo senha é obrigatório.");
+		if(passwordHash == null || passwordHash.isEmpty()) {
+		    throw new IllegalArgumentException("O campo senha é obrigatório.");
 		}
 		this.passwordHash = passwordHash;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}	
 	
 }
