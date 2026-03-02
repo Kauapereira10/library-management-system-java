@@ -17,7 +17,7 @@ import dao.UserDAO;
 import model.User;
 import util.PasswordUtil;
 
-@WebServlet(urlPatterns = {"/users/register", "/users/login", "/users/profile"})
+@WebServlet(urlPatterns = {"/users/register", "/users/login", "/users/profile", "/users/logout"})
 public class UserServlet extends HttpServlet{	
 
 	private UserDAO userDao;
@@ -43,12 +43,15 @@ public class UserServlet extends HttpServlet{
 		case "/users/profile": 
 			HttpSession session = request.getSession();
 			if(session != null && session.getAttribute("user") != null) {
-				request.getRequestDispatcher("/WEB-INF/views/auth/profile.jsp").forward(request, response);
+				request.getRequestDispatcher("/WEB-INF/views/users/profile.jsp").forward(request, response);
 			} else {
 				request.setAttribute("error", "Você precisa estar logado!");
 				request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
 			}
 			
+			break;
+		case "/users/logout":
+			logoutUser(request, response);
 			break;
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + action);
@@ -93,11 +96,11 @@ public class UserServlet extends HttpServlet{
 			
 			userDao.register(newUser);
 			
-			response.sendRedirect(request.getContextPath() + "/WEB-INF/views/auth/login.jsp");
+			response.sendRedirect(request.getContextPath() + "/users/login");;
 			
 		} catch (Exception e) {
 			request.setAttribute("erro", e.getMessage());
-			request.getRequestDispatcher("/WEB-INF/views/auth/resgister.jsp").forward(request, response);
+			request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
 		}
 		return false;
 	}
@@ -105,16 +108,16 @@ public class UserServlet extends HttpServlet{
 	private boolean loginUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		
 			String email = request.getParameter("email");
-			String passwordHash = request.getParameter("password");
+			String password = request.getParameter("password");
 			
-			User user = userDao.login(email, passwordHash);
+			User user = userDao.login(email, password);
 			
 			if(user != null) {
 				HttpSession session = request.getSession();
 				session.setAttribute("user", user);
-				response.sendRedirect(request.getContextPath() +  "/WEB-/views/books/list.jsp");
+				response.sendRedirect(request.getContextPath() + "/users/profile");
 			}else {
-				request.setAttribute("erro", "");
+				request.setAttribute("error", "Email ou senha inválidos.");
 				request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
 			}
 			
@@ -139,7 +142,18 @@ public class UserServlet extends HttpServlet{
 	    
 	    request.setAttribute("user", userFromDb);
 
-	    request.getRequestDispatcher("/WEB-INF/views/auth/profile.jsp").forward(request, response);
+	    request.getRequestDispatcher("/WEB-INF/views/users/profile.jsp").forward(request, response);
+	}
+	
+	private void logoutUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		HttpSession session = request.getSession(false);
+		
+		if(session != null) {
+			session.invalidate();
+		}
+		
+		response.sendRedirect(request.getContextPath() + "/users/login");
 	}
 
 	
