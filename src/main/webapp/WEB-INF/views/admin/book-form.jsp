@@ -4,22 +4,24 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cadastro de Livros</title>
+<title>Formulario do Livro</title>
 </head>
 <body>
-	
+	 
 	<jsp:include page="../includes/header.jsp" />
 	<jsp:include page="../includes/nav-bar.jsp" />
 	
-	<h1>Cadastrar livro</h1>
+	<h1>${book != null ? "Editar Livro" : "Cadastrar Livro"}</h1>
 	
-	<form action="${pageContext.request.contextPath}/admin/books/new" method="post">
+	<form action="${pageContext.request.contextPath}/admin/${book != null ? 'books/update' : 'books/new'}" method="post">
 
-    <input type="text" name="title" placeholder="Título do Livro" required>
-    <input type="text" name="author" placeholder="Autor do Livro" required>
-    <input type="text" name="isbn" placeholder="ISBN" required>
+	<input type="hidden" name="id" value="${book.id}"/>
 
-    <button type="submit">Cadastrar</button>
+    <input type="text" name="title" placeholder="Título do Livro" value="${book.title}" required>
+    <input type="text" name="author" placeholder="Autor do Livro" value="${book.author}" required>
+    <input type="text" name="isbn" placeholder="ISBN" value="${book.isbn}" required>
+
+    <button type="submit">${book != null ? "Editar Livro" : "Cadastrar Livro"}</button>
 
 </form>
 	
