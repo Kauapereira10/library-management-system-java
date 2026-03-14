@@ -1,6 +1,10 @@
 package controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -47,27 +51,36 @@ public class AdminServlet extends HttpServlet {
 		if(path == null || path.equals("/")) {
 			request.getRequestDispatcher("/WEB-INF/views/admin/dashboard.jsp").forward(request, response);
 		} else if(path.equals("/books")) {
-			request.getRequestDispatcher("/WEB-INF/views/admin/book-list.jsp").forward(request, response);
+			listBooks(request, response);
 		} else if(path.equals("/books/new")) {
 			request.getRequestDispatcher("/WEB-INF/views/admin/book-form.jsp").forward(request, response);
+		} else if(path.equals("/books/edit")) {
+			showEditForm(request, response);
 		}
 		
 	}
 	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		String action = request.getPathInfo();
-		
-		switch (action) {
-		case "/admin/books/new":
-			newBook(request, response);
-			break;
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + action);
-		}
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+	        throws ServletException, IOException {
+
+	    String action = request.getPathInfo();
+
+	    switch (action) {
+
+		    case "/books/new":
+		        createBook(request, response);
+		        break;
+	
+		    case "/books/update":
+		        updateBook(request, response);
+		        break;
+
+	        default:
+	            throw new IllegalArgumentException("Unexpected value: " + action);
+	    }
 	}
 	
-	private void newBook(HttpServletRequest request, HttpServletResponse response)  throws IOException{
+	private void createBook(HttpServletRequest request, HttpServletResponse response)  throws IOException{
 		String title = request.getParameter("title");
 		String author = request.getParameter("author");
 		String isbn = request.getParameter("isbn");
@@ -76,6 +89,46 @@ public class AdminServlet extends HttpServlet {
 		bookDao.create(book);
 		
 		response.sendRedirect(request.getContextPath() + "/admin/books");
+	}
+	
+	private void showEditForm(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+
+	    int id = Integer.parseInt(request.getParameter("id"));
+
+	    Book book = bookDao.findById(id);
+
+	    request.setAttribute("book", book);
+
+	    RequestDispatcher dispatcher =
+	            request.getRequestDispatcher("/WEB-INF/views/admin/book-form.jsp");
+
+	    dispatcher.forward(request, response);
+	}
+	
+	private void listBooks(HttpServletRequest request, HttpServletResponse response)  throws IOException, ServletException{
+		
+		List<Book> books = bookDao.findAll();
+		
+		request.setAttribute("books", books);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/admin/book-list.jsp");
+		dispatcher.forward(request, response);
+	}
+	
+	private void updateBook(HttpServletRequest request, HttpServletResponse response)  throws IOException, ServletException{
+	
+		int id = Integer.parseInt(request.getParameter("id"));
+		String title = request.getParameter("title");
+		String author = request.getParameter("author");
+		String isbn = request.getParameter("isbn");
+		
+		Book book = new Book(id, title, author, isbn);
+		
+		bookDao.update(book);
+		
+		response.sendRedirect(request.getContextPath() + "/admin/books");
+		
 	}
 
 }
