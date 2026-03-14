@@ -48,6 +48,8 @@ public class BookServlet extends HttpServlet {
 	private void listBooks(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		List<Book> books = bookDao.findAll();
 		
+		request.setAttribute("books", books);
+		
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/books/list.jsp");
 		dispatcher.forward(request, response);
 	}
