@@ -16,12 +16,12 @@
 		<div class="book-container">
 			<h2>Detalhes do Livro</h2>
 			
-			<p><strong>Título:</strong> ${book.title}</p>
-			<p><strong>Autor:</strong> ${book.author}</p>
-			<p><strong>ISBN:</strong> ${book.isbn}</p>
+			<p><strong>Título:</strong> ${books.title}</p>
+			<p><strong>Autor:</strong> ${books.author}</p>
+			<p><strong>ISBN:</strong> ${books.isbn}</p>
 			<p><strong>Status:</strong>
 			  <c:choose>
-			    <c:when test="${book.available}">
+			    <c:when test="${books.available}">
 			    	Disponível
 			    </c:when>
 			    <c:otherwise>
@@ -29,18 +29,18 @@
 			    </c:otherwise>
 			  </c:choose>
 			</p>
-			<p><strong>Ativo:</strong> ${book.active}</p>
+			<p><strong>Ativo:</strong> ${books.active}</p>
 			
 		</div>
 		
-		<c:if test="${book.available}">
+		<c:if test="${books.available}">
 			<form method="post" action="${pageContext.request.contextPath}/reserve-book">
 				<input type="hiden" name="id" value="${book.id}">
 				<button type="submit">Reservar Livro</button>
 			</form>
 		</c:if>
 		
-		<c:if test="${!book.available}">
+		<c:if test="${!books.available}">
 			<p>Este livro já está reservado.</p>
 		</c:if>
 		
