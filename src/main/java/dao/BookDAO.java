@@ -81,16 +81,14 @@ public class BookDAO {
 	}
 	
 	public boolean update(Book book) {
-		String sql = "UPDATE books SET title =?, author =?, isbn =?, available =?, active =? WHERE id =?;";
+		String sql = "UPDATE books SET title =?, author =?, isbn =? WHERE id =?;";
 		
 		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)){
 			
 			stmt.setString(1, book.getTitle());
 			stmt.setString(2, book.getAuthor());
 			stmt.setString(3, book.getIsbn());
-			stmt.setBoolean(4, book.isAvailable());
-			stmt.setBoolean(5, book.isActive());
-			stmt.setInt(6, book.getId());
+			stmt.setInt(4, book.getId());
 			
 			return stmt.executeUpdate() > 0;
 			
