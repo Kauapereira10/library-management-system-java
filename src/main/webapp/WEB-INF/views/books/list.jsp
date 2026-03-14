@@ -30,11 +30,11 @@
 				<c:forEach var="book" items="${books}">
 					<tr>
 						<td>${book.id}</td>
-						<td>${book.getTitle}</td>
-						<td>${book.getAuthor}</td>
-						<td>${book.getIsbn}</td>
-						<td>${book.isAvailable}</td>
-						<td>${book.isActive}</td>
+						<td>${book.title}</td>
+						<td>${book.author}</td>
+						<td>${book.isbn}</td>
+						<td>${book.available}</td>
+						<td>${book.active}</td>
 						<a href="${pageContext.request.contextPath}/books/details?id=${book.id}">Acessar</a>
 					</tr>
 				</c:forEach>
