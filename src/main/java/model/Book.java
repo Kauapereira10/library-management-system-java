@@ -20,6 +20,16 @@ public class Book {
 		this.available = available;
 		this.active = active;
 	}
+	
+	
+
+	public Book(int id, String title, String author, String isbn) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.author = author;
+		this.isbn = isbn;
+	}
 
 	public Book(int id, String title, String author, String isbn, boolean available, boolean active) {
 		this.id = id;
