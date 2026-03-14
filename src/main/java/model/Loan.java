@@ -1,19 +1,20 @@
 package model;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 public class Loan {
-	private Long id;
+	private int id;
 	private Book book;
 	private User user;
-	private LocalDate loanDate;
-	private LocalDate returnDate;
+	private Date loanDate;
+	private Date returnDate;
 	private boolean active;
 	
 	public Loan() {
 	}
 	
-	public Loan(Book book, User user, LocalDate loanDate, LocalDate returnDate, boolean active) {
+	public Loan(Book book, User user, Date loanDate, Date returnDate, boolean active) {
 		this.book = book;
 		this.user = user;
 		this.loanDate = loanDate;
@@ -21,7 +22,7 @@ public class Loan {
 		this.active = active;
 	}
 
-	public Loan(Long id, Book book, User user, LocalDate loanDate, LocalDate returnDate, boolean active) {
+	public Loan(int id, Book book, User user, Date loanDate, Date returnDate, boolean active) {
 		this.id = id;
 		this.book = book;
 		this.user = user;
@@ -32,10 +33,10 @@ public class Loan {
 
 
 
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	public Book getBook() {
@@ -50,16 +51,16 @@ public class Loan {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	public LocalDate getLoanDate() {
+	public Date getLoanDate() {
 		return loanDate;
 	}
-	public void setLoanDate(LocalDate loanDate) {
-		this.loanDate = loanDate;
+	public void setLoanDate(Date date) {
+		this.loanDate = date;
 	}
-	public LocalDate getReturnDate() {
+	public Date getReturnDate() {
 		return returnDate;
 	}
-	public void setReturnDate(LocalDate returnDate) {
+	public void setReturnDate(Date returnDate) {
 		this.returnDate = returnDate;
 	}
 	public boolean isActive() {
