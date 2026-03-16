@@ -15,18 +15,27 @@ import util.ConnectionFactory;
 public class LoansDAO {
 	
 	public void creatLoan(int bookId, int userId) {
-		String sql = "INSERT INTO loans (book_id, user_id, loan_date, active) VALUES (?,?,?,?);";
-		
-		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)){
-			
-			stmt.setInt(1, bookId);
-			stmt.setInt(2, userId);
-			stmt.setDate(3, java.sql.Date.valueOf(LocalDate.now()));
-			stmt.setBoolean(4, true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+	    String sqlLoan = "INSERT INTO loans (book_id, user_id, loan_date, active) VALUES (?,?,?,?);";
+	    String sqlBook = "UPDATE books SET available = false WHERE id = ?;";
+	    
+	    try (Connection con = ConnectionFactory.getConnection();
+	         PreparedStatement stmtLoan = con.prepareStatement(sqlLoan);
+	         PreparedStatement stmtBook = con.prepareStatement(sqlBook)) {
+	        
+	        // Cria o empréstimo
+	        stmtLoan.setInt(1, bookId);
+	        stmtLoan.setInt(2, userId);
+	        stmtLoan.setDate(3, java.sql.Date.valueOf(LocalDate.now()));
+	        stmtLoan.setBoolean(4, true);
+	        stmtLoan.executeUpdate();
+	        
+	        // Marca o livro como indisponível
+	        stmtBook.setInt(1, bookId);
+	        stmtBook.executeUpdate();
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 	
 	public List<Loan> findByUser(int userId) {
@@ -67,17 +76,24 @@ public class LoansDAO {
 	}
 	
 	public void returnBook(int loanId) {
-		String sql = "UPDATE loans SET active = false, return_date = ? WHERE id = ?";
-		
-		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)){
-			
-			stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
-			stmt.setInt(2, loanId);
-			
-			stmt.executeUpdate();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	    String sqlLoan = "UPDATE loans SET active = false, return_date = ? WHERE id = ?";
+	    String sqlBook = "UPDATE books SET available = true WHERE id = (SELECT book_id FROM loans WHERE id = ?)";
+	    
+	    try (Connection con = ConnectionFactory.getConnection();
+	         PreparedStatement stmtLoan = con.prepareStatement(sqlLoan);
+	         PreparedStatement stmtBook = con.prepareStatement(sqlBook)) {
+	        
+	        // Fecha o empréstimo
+	        stmtLoan.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+	        stmtLoan.setInt(2, loanId);
+	        stmtLoan.executeUpdate();
+	        
+	        // Marca o livro como disponível novamente
+	        stmtBook.setInt(1, loanId);
+	        stmtBook.executeUpdate();
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 }
