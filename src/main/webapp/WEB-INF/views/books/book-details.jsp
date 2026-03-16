@@ -29,13 +29,22 @@
 			    </c:otherwise>
 			  </c:choose>
 			</p>
-			<p><strong>Ativo:</strong> ${books.active}</p>
+			<p><strong>Ativo:</strong> 
+			<c:choose>
+			<c:when test="${books.active}">
+			    	Sim
+			    </c:when>
+			    <c:otherwise>
+			    	Não
+			    </c:otherwise>
+			  </c:choose>
+			</p>
 			
 		</div>
 		
 		<c:if test="${books.available}">
-			<form method="post" action="${pageContext.request.contextPath}/reserve-book">
-				<input type="hiden" name="id" value="${book.id}">
+			<form method="post" action="${pageContext.request.contextPath}/loans/borrow">
+				<input type="hidden" name="bookId" value="${books.id}">
 				<button type="submit">Reservar Livro</button>
 			</form>
 		</c:if>
