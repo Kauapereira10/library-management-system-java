@@ -5,7 +5,8 @@
     <a href="${pageContext.request.contextPath}/">Início</a>
     <a href="${pageContext.request.contextPath}/books">Catálogo</a>
     <a href="${pageContext.request.contextPath}/loans">Meus Empréstimos</a>	
-    <a href="${pageContext.request.contextPath}/loans?action=borrow">Emprestar Livro</a>
+
+    <!-- <a href="${pageContext.request.contextPath}/loans?action=borrow">Emprestar Livro</a> -->
 
     
 
