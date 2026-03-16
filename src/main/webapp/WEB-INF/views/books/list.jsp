@@ -23,6 +23,7 @@
 						<th>Autor</th>
 						<th>ISBN</th>
 						<th>Status</th>
+						<th>Em Estoque</th>
 						<th>Ações</th>
 					</tr>
 				</thead>
@@ -33,9 +34,27 @@
 						<td>${book.title}</td>
 						<td>${book.author}</td>
 						<td>${book.isbn}</td>
-						<td>${book.available}</td>
-						<td>${book.active}</td>
-						<a href="${pageContext.request.contextPath}/books/details?id=${book.id}">Acessar</a>
+						<td>
+						<c:choose>
+					    <c:when test="${book.available}">
+					    	Disponível
+					    </c:when>
+					    <c:otherwise>
+					    	Reservado
+					    </c:otherwise>
+					  </c:choose>
+					  </td>
+						<td>
+							<c:choose>
+						    <c:when test="${book.active}">
+						    	Sim
+						    </c:when>
+						    <c:otherwise>
+						    	Não
+						    </c:otherwise>
+						  </c:choose>
+						</td>
+						<td><a href="${pageContext.request.contextPath}/books/details?id=${book.id}">Acessar</a></td>	
 					</tr>
 				</c:forEach>
 				</tbody>
