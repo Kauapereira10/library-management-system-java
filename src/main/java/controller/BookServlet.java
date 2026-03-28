@@ -28,15 +28,7 @@ public class BookServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Rota acessada: " + request.getServletPath());
 		
-		String action = request.getServletPath();
-		
-		switch (action) {
-		case "/books": 
-			listBooks(request, response);
-			break;
-		default:
-			request.getRequestDispatcher("/WEB-INF/views/index.jsp").forward(request, response);
-		}
+		listBooks(request, response);
 		
 	}
 
@@ -46,12 +38,21 @@ public class BookServlet extends HttpServlet {
 	}
 
 	private void listBooks(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		List<Book> books = bookDao.findAll();
+		try {
+			
+			List<Book> books = bookDao.findAll();
+			
+			request.setAttribute("books", books);
+			
+			RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/books/list.jsp");
+			dispatcher.forward(request, response);
+				
+		} catch (Exception e) {
+			e.printStackTrace();
+			request.setAttribute("memsageErro", "Erro ao carregar os livros.");
+			request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);	
+		}
 		
-		request.setAttribute("books", books);
-		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/books/list.jsp");
-		dispatcher.forward(request, response);
 	}
 	
 }
