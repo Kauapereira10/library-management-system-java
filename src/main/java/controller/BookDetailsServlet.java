@@ -1,4 +1,4 @@
-package controller;
+ package controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dao.BookDAO;
+import exception.BusinessException;
 import model.Book;
 
 
@@ -40,9 +41,19 @@ public class BookDetailsServlet extends HttpServlet {
 	
 	private void detailsBook (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		try {
-			int id = Integer.parseInt(request.getParameter("id"));
+			 String idParam = request.getParameter("id");
+			
+			if(idParam == null) {
+				throw new BusinessException("ID nãp informado.");
+			}
+			
+			int id = Integer.parseInt(idParam);
 			
 			Book book = bookDao.findById(id);
+			
+			if(book == null) {
+				throw new BusinessException("Livro não Encontrado.");
+			}
 			
 			request.setAttribute("books", book);
 			
@@ -50,9 +61,21 @@ public class BookDetailsServlet extends HttpServlet {
 			
 			dispatcher.forward(request, response);
 			
+		} catch (NumberFormatException e) { 
+			
+			request.setAttribute("mensagemErro", "ID inválido");
+			request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);
+			
+		} catch (BusinessException e) {
+			request.setAttribute("mensagemErro", e.getMessage());
+			request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);
+			
 		} catch (Exception e) {
+			
 			e.printStackTrace();
-			response.sendRedirect(request.getContextPath() + "/home");
+			request.setAttribute("mensagemErro", "Erro inesperado");
+			request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);
+			
 		}
 	}
 
