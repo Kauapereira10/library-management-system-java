@@ -12,9 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.connector.Request;
-
 import dao.BookDAO;
+import exception.BusinessException;
 import model.Book;
 import model.User;
 
@@ -65,19 +64,32 @@ public class AdminServlet extends HttpServlet {
 
 	    String action = request.getPathInfo();
 
-	    switch (action) {
+	    try {
+	    
+	    	switch (action) {
 
-		    case "/books/new":
-		        createBook(request, response);
-		        break;
-	
-		    case "/books/update":
-		        updateBook(request, response);
-		        break;
+	        case "/books/new":
+	            createBook(request, response);
+	            break;
+
+	        case "/books/update":
+	            updateBook(request, response);
+	            break;
 
 	        default:
-	            throw new IllegalArgumentException("Unexpected value: " + action);
+	            throw new BusinessException("Ação inválida.");
 	    }
+	    
+	    } catch (BusinessException e) {
+			
+	    	request.setAttribute("mensagemErro", e.getMessage());
+	    	request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			request.setAttribute("mensagemErro", "Erro inesperado.");
+			request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);
+		}
 	}
 	
 	private void createBook(HttpServletRequest request, HttpServletResponse response)  throws IOException{
