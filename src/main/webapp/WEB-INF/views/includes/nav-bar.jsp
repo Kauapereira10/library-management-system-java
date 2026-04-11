@@ -11,7 +11,7 @@
     
 
 	<c:if test="${not empty sessionScope.user and sessionScope.user.role == 'Admin'}">
-		<a href="${pageContext.request.contextPath}/admin">Dashboard</a>
+		<a href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
 		<a href="${pageContext.request.contextPath}/admin/books">Livros</a>
 		<a href="${pageContext.request.contextPath}/admin/books/new">Novo Livro</a>
 	</c:if>
