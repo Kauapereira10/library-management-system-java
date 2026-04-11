@@ -40,17 +40,22 @@
 								<td>
 									<c:choose>
 										<c:when test="${loan.book.available}">
-											Disponível
+											Emprestado
 										</c:when>
 										<c:otherwise>
-											Emprestado
+											Disponível
 										</c:otherwise>
 									</c:choose>
 								</td>
 								<td>
-									<a href="${pageContext.request.contextPath}/loans/return?id=${loan.id}">
+									<form method="post" action="${pageContext.request.contextPath}/loans/return">
+										<input type="hidden" name="id" value="${loan.id}">
+										<button type="submit">Devolver</button>
+									</form>
+									
+									<%-- <%-- <a href="${pageContext.request.contextPath}/loans/return?id=${loan.id}">
 										 Devolver
-									</a>
+									</a> --%>
 								</td>
 							</tr>
 						</c:forEach>
