@@ -3,9 +3,11 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import exception.BusinessException;
 import model.Book;
 import util.ConnectionFactory;
 
@@ -59,7 +61,7 @@ public class BookDAO {
 		return book;
 	}
 	
-	public boolean create(Book book) {
+	public void create(Book book) {
 		String sql = "INSERT INTO books (title, author, isbn, available, active) VALUES (?,?,?,?,?);";
 		
 		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)){
@@ -70,14 +72,13 @@ public class BookDAO {
 			stmt.setBoolean(5, book.isActive());
 			
 			int linhasAfetadas = stmt.executeUpdate();
-			
-			if(linhasAfetadas > 0) {
-				return true;
+		
+		} catch (SQLException e) {
+			if(e.getErrorCode() == 1062) {
+				throw new BusinessException("Este ISBN já está cadastrado no sistema.");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Erro técnico ao salvar livro.", e);
 		}
-		return false;
 	}
 	
 	public boolean update(Book book) {
@@ -110,5 +111,50 @@ public class BookDAO {
 			e.printStackTrace();
 		}
 	}
+	
+	public int countAll() {
+		String sql = "SELECT COUNT(*) FROM books WHERE active = true;";
+		try (Connection con =  ConnectionFactory.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql);
+				ResultSet rs = stmt.executeQuery();) {
+			if(rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public int countAvailable() {
+		String sql = "SELECT COUNT(*) FROM books WHERE available = true AND active = true;";
+		try (Connection con = ConnectionFactory.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql);
+						ResultSet rs = stmt.executeQuery();) {
+			if(rs.next()) {
+				return rs.getInt(1);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public int countBorrowed() {
+		String sql = "SELECT COUNT(*) FROM books WHERE available = false AND active = true;";
+		try (Connection con = ConnectionFactory.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql);
+				ResultSet rs = stmt.executeQuery();){
+			if(rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	
 	
 }
