@@ -14,11 +14,11 @@
 	<main>
 		<h1>Empréstimos</h1>
 
-		<c:if test="empty loans">
+		<c:if test="${empty loans}">
 			<p>Nenhum empréstimo encontrado.</p>
 		</c:if>
 		
-		<c:if test="not empty loans">
+		<c:if test="${not empty loans}">
 			<table border="1">
 				<thead>
 					<tr>
@@ -31,7 +31,7 @@
 					</tr>
 				</thead>	
 				<tbody>
-					<c:forEach var="loan" items="loans">
+					<c:forEach var="loan" items="${loans}">
 						<tr>
 							<td>${loan.id}</td>
 							<td>${loan.book.title}</td>
