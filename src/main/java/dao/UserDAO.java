@@ -81,6 +81,7 @@ public class UserDAO {
 				user.setFullName(rs.getString("full_name"));
 				user.setNickName(rs.getString("nick_name"));
 				user.setEmail(rs.getString("email"));
+				user.setRole(rs.getString("role"));
 				
 				return user;
 			}
@@ -89,4 +90,19 @@ public class UserDAO {
 		}
 		return null;
 	}
+	
+	public int countAll() {
+		String sql = "SELECT COUNT(*) FROM users;";
+		try (Connection con = ConnectionFactory.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql);
+				ResultSet rs = stmt.executeQuery();){
+			if(rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
 }
