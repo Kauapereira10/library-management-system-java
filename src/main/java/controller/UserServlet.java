@@ -1,8 +1,8 @@
 package controller;
 
 import java.io.IOException;
-import java.text.ParseException;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -10,14 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.mindrot.jbcrypt.BCrypt;
-
-
 import dao.UserDAO;
+import exception.BusinessException;
 import model.User;
 import util.PasswordUtil;
 
-@WebServlet(urlPatterns = {"/users/register", "/users/login", "/users/profile", "/users/logout"})
+/*@WebServlet(urlPatterns = {"/users/register", "/users/login", "/users/profile", "/users/logout"})*/
+@WebServlet("/users/*")
 public class UserServlet extends HttpServlet{	
 
 	private UserDAO userDao;
@@ -31,26 +30,26 @@ public class UserServlet extends HttpServlet{
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Rota acessada: " + request.getServletPath());
 		 
-		String action = request.getServletPath();
+		String action = getPath(request);
 
 		switch (action) {
-		case "/users/register": 
-			request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
+		case "/register": 
+			forward(request, response, "/WEB-INF/views/auth/register.jsp");
 			break;
-		case "/users/login": 
-			request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
+		case "/login": 
+			forward(request, response, "/WEB-INF/views/auth/login.jsp");
 			break;
-		case "/users/profile": 
-			HttpSession session = request.getSession();
+		case "/profile": 
+			HttpSession session = request.getSession(false);
 			if(session != null && session.getAttribute("user") != null) {
-				request.getRequestDispatcher("/WEB-INF/views/users/profile.jsp").forward(request, response);
+				forward(request, response, "/WEB-INF/views/users/profile.jsp");
 			} else {
 				request.setAttribute("error", "Você precisa estar logado!");
-				request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
+				forward(request, response, "/WEB-INF/views/auth/login.jsp");
 			}
 			
 			break;
-		case "/users/logout":
+		case "/logout":
 			logoutUser(request, response);
 			break;
 		default:
@@ -61,18 +60,16 @@ public class UserServlet extends HttpServlet{
 	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String action = request.getServletPath();
-		
-		boolean success = false;
+		String action = getPath(request);
 		
 		switch (action) {
-		case "/users/register": 
-			success = registerUser(request, response);
+		case "/register": 
+			registerUser(request, response);
 			return;
-		case "/users/login":
-			success = loginUser(request, response);
+		case "/login":
+			loginUser(request, response);
 			return;
-		case "/users/profile":
+		case "/profile":
 			showProfile(request, response);
 			break;
 		default:
@@ -90,17 +87,17 @@ public class UserServlet extends HttpServlet{
 			String email = request.getParameter("email");
 			String password = request.getParameter("password");
 			
+			validateUser(fullName, nickName, email, password);
+			
 			String hash = PasswordUtil.hash(password);
-			
 			newUser = new User(fullName, nickName, email, hash);
-			
 			userDao.register(newUser);
 			
 			response.sendRedirect(request.getContextPath() + "/users/login");;
 			
 		} catch (Exception e) {
 			request.setAttribute("erro", e.getMessage());
-			request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
+			forward(request, response, "/WEB-INF/views/auth/register.jsp");
 		}
 		return false;
 	}
@@ -118,7 +115,7 @@ public class UserServlet extends HttpServlet{
 				response.sendRedirect(request.getContextPath() + "/users/profile");
 			}else {
 				request.setAttribute("error", "Email ou senha inválidos.");
-				request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
+				forward(request, response, "/WEB-INF/views/auth/login.jsp");
 			}
 			
 			
@@ -141,8 +138,7 @@ public class UserServlet extends HttpServlet{
 	    User userFromDb = userDao.findById(sessionUser.getId());
 	    
 	    request.setAttribute("user", userFromDb);
-
-	    request.getRequestDispatcher("/WEB-INF/views/users/profile.jsp").forward(request, response);
+	    forward(request, response, "/WEB-INF/views/users/profile.jsp");
 	}
 	
 	private void logoutUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -156,5 +152,35 @@ public class UserServlet extends HttpServlet{
 		response.sendRedirect(request.getContextPath() + "/users/login");
 	}
 
+	// HELPERS
+	
+	private String getPath(HttpServletRequest request) {
+		String path = request.getPathInfo();
+		return (path == null) ? "/" : path;
+				
+	}
+	
+	private void forward (HttpServletRequest request, HttpServletResponse response, String path) throws ServletException, IOException {
+		RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+		dispatcher.forward(request, response);
+	}
+	
+	private void validateUser(String fullName, String nickName, String email, String password) {
+		if(fullName == null || fullName.isBlank()) {
+			throw new BusinessException("Nome completo é obrigatório.");
+		}
+		
+		if(nickName == null || nickName.isBlank()) {
+			throw new BusinessException("Nome do usuario é obrigatório.");
+		}
+		
+		if(email == null || email.isBlank()) {
+			throw new BusinessException("Email é obrigatório.");
+		}
+		
+		if(password == null || password.isBlank()) {
+			throw new BusinessException("Senha é obrigatório.");
+		}
+	}
 	
 }
