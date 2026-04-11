@@ -20,7 +20,7 @@ body {
 <body>
 
 	<div class="box">
-		<h1>😕 Algo deu errado</h1>
+		<p>${not empty errorMessage ? errorMessage : 'Erro inesperado.'}</p>
 		<p>Estamos trabalhando para corrigir isso.</p>
 		<a href="${pageContext.request.contextPath}/home">Voltar para o início</a>
 	</div>
