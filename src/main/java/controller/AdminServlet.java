@@ -13,7 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import dao.BookDAO;
+import dao.LoansDAO;
+import dao.UserDAO;
 import exception.BusinessException;
+import exception.NotFoundException;
 import model.Book;
 import model.User;
 
@@ -22,51 +25,51 @@ import model.User;
 public class AdminServlet extends HttpServlet {
 	
 	private BookDAO bookDao;
+	private UserDAO userDao;
+	private LoansDAO loansDao;
 	
 	@Override
 	public void init() {
 		bookDao = new BookDAO();
+		userDao = new UserDAO();
+		loansDao = new LoansDAO();
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(!validateAdmin(request, response)) return;
 		
-		// VERIFICA SE É ADMIN
-		HttpSession session = request.getSession(false);
+		String path = getPath(request);
 		
-		if(session == null || session.getAttribute("user") == null) {
-			response.sendRedirect(request.getContextPath() + "/users/login");
-			return;
-		}
-		
-		User user = (User) session.getAttribute("user");
-	
-		if(!"Admin".equals(user.getRole())) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return;
-		}
-		
-		String path = request.getPathInfo();
-		
-		if(path == null || path.equals("/")) {
-			request.getRequestDispatcher("/WEB-INF/views/admin/dashboard.jsp").forward(request, response);
-		} else if(path.equals("/books")) {
+		switch (path) {
+		case "/dashboard": 
+			loadDashboard(request, response);
+			break;
+			
+		case "/books":
 			listBooks(request, response);
-		} else if(path.equals("/books/new")) {
-			request.getRequestDispatcher("/WEB-INF/views/admin/book-form.jsp").forward(request, response);
-		} else if(path.equals("/books/edit")) {
+			break;
+			
+		case "/books/new": 
+			forward(request, response, "/WEB-INF/views/admin/book-form.jsp");
+			break;
+			
+		case "/books/edit":
 			showEditForm(request, response);
+			break;
+		default:
+			throw new NotFoundException("Rota não encontrada.");
 		}
 		
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 	        throws ServletException, IOException {
+		
+		if(!validateAdmin(request, response)) return;
 
-	    String action = request.getPathInfo();
-
-	    try {
+	    String path = getPath(request);
 	    
-	    	switch (action) {
+	    	switch (path) {
 
 	        case "/books/new":
 	            createBook(request, response);
@@ -77,25 +80,48 @@ public class AdminServlet extends HttpServlet {
 	            break;
 
 	        default:
-	            throw new BusinessException("Ação inválida.");
+	            throw new NotFoundException("Ação inválida.");
 	    }
-	    
-	    } catch (BusinessException e) {
-			
-	    	request.setAttribute("mensagemErro", e.getMessage());
-	    	request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);
+	    	
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			request.setAttribute("mensagemErro", "Erro inesperado.");
-			request.getRequestDispatcher("/WEB-INF/views/errors/error.jsp").forward(request, response);
-		}
 	}
 	
-	private void createBook(HttpServletRequest request, HttpServletResponse response)  throws IOException{
+	//VALIDAÇÃO
+	
+	public boolean validateAdmin(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		
+		HttpSession session = request.getSession(false);
+		
+		if(session == null || session.getAttribute("user") == null) {
+			response.sendRedirect(request.getContextPath() + "/users/login");
+			return false;
+		}
+		
+		User user = (User) session.getAttribute("user");
+		
+		if(!"Admin".equals(user.getRole())) {
+			throw new BusinessException("Acesso negado.");
+		}
+		
+		return true;
+	}
+	
+	// AÇÕES
+	
+	private void listBooks(HttpServletRequest request, HttpServletResponse response)  throws IOException, ServletException{
+		
+		List<Book> books = bookDao.findAll();
+		request.setAttribute("books", books);
+		
+		forward(request, response, "/WEB-INF/views/admin/book-list.jsp");
+	}
+	
+	private void createBook(HttpServletRequest request, HttpServletResponse response)  throws IOException, BusinessException{
 		String title = request.getParameter("title");
 		String author = request.getParameter("author");
 		String isbn = request.getParameter("isbn");
+		
+		validateBook(title, author, isbn);
 		
 		Book book = new Book(title, author, isbn, true, true);
 		bookDao.create(book);
@@ -103,44 +129,90 @@ public class AdminServlet extends HttpServlet {
 		response.sendRedirect(request.getContextPath() + "/admin/books");
 	}
 	
-	private void showEditForm(HttpServletRequest request, HttpServletResponse response)
-	        throws ServletException, IOException {
-
-	    int id = Integer.parseInt(request.getParameter("id"));
-
-	    Book book = bookDao.findById(id);
-
-	    request.setAttribute("book", book);
-
-	    RequestDispatcher dispatcher =
-	            request.getRequestDispatcher("/WEB-INF/views/admin/book-form.jsp");
-
-	    dispatcher.forward(request, response);
-	}
-	
-	private void listBooks(HttpServletRequest request, HttpServletResponse response)  throws IOException, ServletException{
-		
-		List<Book> books = bookDao.findAll();
-		
-		request.setAttribute("books", books);
-		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/admin/book-list.jsp");
-		dispatcher.forward(request, response);
-	}
-	
 	private void updateBook(HttpServletRequest request, HttpServletResponse response)  throws IOException, ServletException{
-	
-		int id = Integer.parseInt(request.getParameter("id"));
+		
+		int id = parseId(request.getParameter("id"));
 		String title = request.getParameter("title");
 		String author = request.getParameter("author");
 		String isbn = request.getParameter("isbn");
 		
+		validateBook(title, author, isbn);
+		
 		Book book = new Book(id, title, author, isbn);
 		
-		bookDao.update(book);
-		
+		if(!bookDao.update(book)) {
+			throw new NotFoundException("Livro não encontrado para atualização.");
+		}
+
 		response.sendRedirect(request.getContextPath() + "/admin/books");
-		
 	}
+	
+	private void showEditForm(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+
+		int id = parseId(request.getParameter("id"));
+
+	    Book book = bookDao.findById(id);
+	    
+	    if(book == null) {
+	    	throw new NotFoundException("Livro não encontrado.");
+	    }
+
+	    request.setAttribute("book", book);
+
+	    forward(request, response, "/WEB-INF/views/admin/book-form.jsp");
+	}
+	
+	private void loadDashboard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setAttribute("totalBooks", bookDao.countAll());
+		request.setAttribute("availableBooks", bookDao.countAvailable());
+		request.setAttribute("borrowedBooks", bookDao.countBorrowed());
+		request.setAttribute("totalUsers", userDao.countAll());
+		request.setAttribute("activeLoans", loansDao.countActive());
+		request.setAttribute("recentLoans", loansDao.findRecent(5));
+		
+		forward(request, response, "/WEB-INF/views/admin/dashboard.jsp");
+	}
+	
+	// HELPERS
+	
+	private String getPath(HttpServletRequest request) {
+		String path = request.getPathInfo(); // retorna "/", "/books", "/books/edit" ...
+		return (path == null) ? "/" : path; 
+	}
+	
+	private int parseId(String idParam) {
+        try {
+            return Integer.parseInt(idParam);
+        } catch (Exception e) {
+            throw new BusinessException("ID inválido.");
+        }
+    }
+	
+	private void validateBook(String title, String author, String isbn) {
+		
+		if(title == null || title.isBlank()) {
+			throw new BusinessException("Título é obrigatório.");
+		}
+		if(author == null || author.isBlank()) {
+			throw new BusinessException("Autor é obrigatório.");
+		}
+		if(isbn == null || isbn.isBlank()) {
+			throw new BusinessException("ISBN é obrigatório.");
+		}
+	}
+	
+	
+	
+	private void forward (HttpServletRequest request, HttpServletResponse response, String path) throws ServletException, IOException {
+		RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+		dispatcher.forward(request, response);
+	}
+	
+	
+	
+	
+	
+	
 
 }
