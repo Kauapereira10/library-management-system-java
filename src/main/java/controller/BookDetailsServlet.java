@@ -55,7 +55,7 @@ public class BookDetailsServlet extends HttpServlet {
 				throw new BusinessException("Livro não Encontrado.");
 			}
 			
-			request.setAttribute("books", book);
+			request.setAttribute("book", book);
 			
 			RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/books/book-details.jsp");
 			
