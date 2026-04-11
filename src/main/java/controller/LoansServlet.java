@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -13,7 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import dao.LoansDAO;
 import exception.BusinessException;
-import exception.handleError;
+import exception.UnauthorizedException;
 import model.Loan;
 import model.User;
 
@@ -28,74 +29,31 @@ public class LoansServlet extends HttpServlet{
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 
-		try {
-			HttpSession session = request.getSession(false);
+			session(request, response);
 			
-			if(session == null || session.getAttribute("user") == null) {
-				response.sendRedirect(request.getContextPath() + "/users/login");
-				return;
-			}
-			
-			User user = (User) session.getAttribute("user");
-			
-			String action = request.getPathInfo();
+			String action = getPath(request);
 			
 			if(action == null || action.equals("/")) {
 				listLoans(request, response);
-			} else if (action.equals("/return")) {
-				returnBook(request, response);
 			} else {
 				throw new BusinessException("Ação Inválida.");
 			}
-			
-		} catch (BusinessException e) {
-           
-			handleError.handle(request, response, e.getMessage());
-			
-        } catch (Exception e) {
-           e.printStackTrace();
-           handleError.handle(request, response, "Erro inesperado.");
-        }
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-	
-		try {
 			
-			HttpSession session = request.getSession(false);
+			session(request, response);
 			
-			if(session == null || session.getAttribute("user") == null) {
-				response.sendRedirect(request.getContextPath() + "/users/login");
-				return;
-			}
-			
-			User user = (User) session.getAttribute("user");
-			
-			String action = request.getPathInfo();
+			String action = getPath(request);
 			
 			if(action.equals("/borrow")) {
 				borrowBook(request, response);
+			} else if (action.equals("/return")) {
+				returnBook(request, response);
 			} else {
                 throw new BusinessException("Ação inválida.");
             }
-			
-			
-		} catch (BusinessException e) {
-			handleError.handle(request, response, e.getMessage());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            handleError.handle(request, response, e.getMessage());
-        }
 		
-//		System.out.println("Rota acessada borrowBook: " + request.getPathInfo());
-//
-//		String action = request.getPathInfo();
-//		
-//		
-//		if(action.equals("/borrow")) {
-//			borrowBook(request, response);
-//		}
 	}
 	
 	private void listLoans(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
@@ -128,4 +86,23 @@ public class LoansServlet extends HttpServlet{
 		
 		response.sendRedirect(request.getContextPath() + "/loans");
 	}	
+	
+	private String getPath(HttpServletRequest request) {
+		String path = request.getPathInfo();
+		return (path == null) ? "/" : path;
+				
+	}
+	
+	private User session(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession(false);
+		
+		if(session == null || session.getAttribute("user") == null) {
+			throw new UnauthorizedException("Você precisa estar logado.");
+		}
+		
+		User user = (User) session.getAttribute("user");
+		return user;
+	}
+	
+	
 }
