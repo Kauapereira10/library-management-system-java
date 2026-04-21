@@ -67,6 +67,23 @@ public class UserDAO {
 		
 	}
 	
+	public boolean update(User user) {
+		String sql = "UPDATE users SET full_name=?, nick_name=?, email=?, password_hash=? WHERE id=?";
+		
+		try (Connection con = ConnectionFactory.getConnection(); PreparedStatement stmt = con.prepareStatement(sql);){
+			stmt.setString(1, user.getFullName());
+			stmt.setString(2, user.getNickName());
+			stmt.setString(3, user.getEmail());
+			stmt.setString(4, user.getPasswordHash());
+			stmt.setInt(5, user.getId());
+			
+			return stmt.executeUpdate() > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public User findById(int id) {
 		String sql = "SELECT * FROM users WHERE id = ?";
 		
@@ -104,5 +121,6 @@ public class UserDAO {
 		}
 		return 0;
 	}
+	
 	
 }
