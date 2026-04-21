@@ -97,7 +97,7 @@ public class LoansServlet extends HttpServlet{
 		HttpSession session = request.getSession(false);
 		
 		if(session == null || session.getAttribute("user") == null) {
-			throw new UnauthorizedException("Você precisa estar logado.");
+			throw new UnauthorizedException("Você precisa estar logado para fazer empréstimos.");
 		}
 		
 		User user = (User) session.getAttribute("user");
