@@ -22,6 +22,10 @@
 	<c:if test="${not empty error}">
 		 <p style="color:red">${error}</p>
 	</c:if>
+	
+	<c:if test="${not empty sessionScope.loginMessage}">
+    <p style="color: orange;">${sessionScope.loginMessage}</p>
+</c:if>
 	<jsp:include page="../includes/footer.jsp" />
 </body>
 </html>
