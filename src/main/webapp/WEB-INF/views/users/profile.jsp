@@ -23,10 +23,12 @@
     			<h3>Meus Dados</h3>
     			<p><strong>Nome Completo:</strong> ${sessionScope.user.fullName}</p>
     			<p><strong>E-mail:</strong> ${sessionScope.user.email}</p>
-				<a href="edit-profile" class="btn-edit">Editar Perfil</a>
+				<a href="${pageContext.request.contextPath}/profile/edit" class="btn-edit">Editar Perfil</a>
     		</section>
     		
     	</div>
+    	
+    	
 	</main>
 	
 	<jsp:include page="../includes/footer.jsp" />
