@@ -8,6 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @WebFilter("/*")
 public class GlobalExceptionHandler implements javax.servlet.Filter{
@@ -31,6 +33,14 @@ public class GlobalExceptionHandler implements javax.servlet.Filter{
 	}
 	
 	public void handleException(ServletRequest request, ServletResponse response, Throwable e) throws ServletException, IOException {
+		
+		if (e instanceof UnauthorizedException) {
+	        HttpServletRequest req = (HttpServletRequest) request;
+	        HttpServletResponse res = (HttpServletResponse) response;
+	        req.getSession().setAttribute("loginMessage", e.getMessage());
+	        res.sendRedirect(req.getContextPath() + "/users/login");
+	        return;
+	    }
 		
 		String errorMessage;
 		
