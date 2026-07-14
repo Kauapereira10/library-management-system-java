@@ -1,4 +1,4 @@
-CREATE TABLE labrary_db.users (
+CREATE TABLE library_db.users (
 	id INT UNSIGNED AUTO_INCREMENT NOT NULL,
     full_name VARCHAR(150) NOT NULL,
     nick_name VARCHAR(100) NOT NULL,
